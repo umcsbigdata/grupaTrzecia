@@ -1,28 +1,27 @@
+from pandas.core.frame import DataFrame
 from selenium.webdriver import Firefox
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver import ActionChains
-from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 
-import time as t
+import time
 
-def get_records():
+
+def get_records() -> pd.DataFrame:
     # Uruchom przeglądarkę i przejdź do strony
     driver = Firefox()
-    driver.get("https://migracje.gov.pl/statystyki/zakres/polska/typ/wnioski/widok/tabele/rok/2021/")
+    driver.get(
+        "https://migracje.gov.pl/statystyki/zakres/polska/typ/wnioski/widok/tabele/rok/2021/")
 
     # Czekaj aż się załaduje
-    t.sleep(10)
+    time.sleep(10)
 
-    # Pobierz tekst z tabeli
-    # Tekst do listy list:
+    # Pobierz tekst z tabeli do listy
     tablica = []
     ended = False
     while not ended:
+        # Wpisz dane z tabeli na stronie do listy
         for table in driver.find_elements_by_xpath("//table[@id='DataTables_Table_0']/tbody/tr"):
-            data = [int(item.text) for item in table.find_elements_by_xpath(".//*[self::td or self::th]")]
+            data = [int(item.text) for item in table.find_elements_by_xpath(
+                ".//*[self::td or self::th]")]
             tablica.append(data)
         next_button = driver.find_element_by_id("DataTables_Table_0_next")
         # Sprawdź, czy przycisk następnej strony jest klasy "disabled" i jeśli tak - skończ iterację
@@ -34,16 +33,19 @@ def get_records():
     # Zamykam przeglądarkę
     driver.close()
 
-    # Utworzyć funkcje: zwracającą tablicę jako pandas DataFrame
-    return pd.DataFrame(tablica)
+    # Zwracamy listę przekonwertowaną na DataFrame z odpowiednimi kolumnami
+    return pd.DataFrame(tablica, columns=["Wiek", "Rok", "Liczba"])
 
-# Utworzyć funkcje przetwarzające DataFrame do csv & sqli
+
 def tablica_csv(dataframe: pd.DataFrame):
-    dataframe.to_csv("tablica.csv")
+    dataframe.to_csv("tablica.csv", index=False)
 
-def tablica_sql(dataframe):
+
+def tablica_sql(dataframe: pd.DataFrame):
     pass
 
+
 tablica = get_records()
-print(tablica)
 tablica_csv(tablica)
+tablica_sql(tablica)
+print(tablica)
