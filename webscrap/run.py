@@ -16,17 +16,20 @@ def get_records():
     # Czekaj aż się załaduje
     t.sleep(10)
 
-    elem = driver.find_element_by_xpath("//select[@name='DataTables_Table_0_length']")
-    elem.click()
-    elem.send_keys("100")
-
     # Pobierz tekst z tabeli
-
     # Tekst do listy list:
     tablica = []
-    for table in driver.find_elements_by_xpath("//table[@id='DataTables_Table_0']/tbody/tr"):
-        data = [int(item.text) for item in table.find_elements_by_xpath(".//*[self::td or self::th]")]
-        tablica.append(data)
+    ended = False
+    while not ended:
+        for table in driver.find_elements_by_xpath("//table[@id='DataTables_Table_0']/tbody/tr"):
+            data = [int(item.text) for item in table.find_elements_by_xpath(".//*[self::td or self::th]")]
+            tablica.append(data)
+        next_button = driver.find_element_by_id("DataTables_Table_0_next")
+        # Sprawdź, czy przycisk następnej strony jest klasy "disabled" i jeśli tak - skończ iterację
+        if "disabled" in next_button.get_attribute("class").split(" "):
+            ended = True
+        else:
+            next_button.click()
 
     # Zamykam przeglądarkę
     driver.close()
