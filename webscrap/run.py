@@ -38,11 +38,12 @@ def get_records():
     return pd.DataFrame(tablica)
 
 # Utworzyć funkcje przetwarzające DataFrame do csv & sqli
-def tablica_csv(dataframe):
-    pass
+def tablica_csv(dataframe: pd.DataFrame):
+    dataframe.to_csv("tablica.csv")
 
 def tablica_sql(dataframe):
     pass
 
 tablica = get_records()
 print(tablica)
+tablica_csv(tablica)
