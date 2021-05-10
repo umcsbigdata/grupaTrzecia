@@ -1,6 +1,7 @@
 from pandas.core.frame import DataFrame
 from selenium.webdriver import Firefox
 import pandas as pd
+import sqlite3
 
 import time
 
@@ -42,7 +43,14 @@ def tablica_csv(dataframe: pd.DataFrame):
 
 
 def tablica_sql(dataframe: pd.DataFrame):
-    pass
+    conn = sqlite3.connect("tablica.db")
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS Migracje (Wiek INTEGER, Rok INTEGER, Liczba INTEGER);")
+    c.execute("DELETE FROM Migracje;")
+    for index, row in dataframe.iterrows():
+        c.execute(f"INSERT INTO Migracje (Wiek, Rok, Liczba) VALUES ({row['Wiek']}, {row['Rok']}, {row['Liczba']});")
+    conn.commit()
+    conn.close()
 
 
 tablica = get_records()
